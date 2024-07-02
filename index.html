@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quote of the Day</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: black;
+            margin: 0;
+        }
+        #app {
+            text-align: center;
+            background-color: white;
+            padding: 2em;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+        }
+        #quote {
+            font-size: 1.5em;
+            margin-bottom: 1em;
+        }
+        #search {
+            margin-bottom: 1em;
+        }
+        .quote-item {
+            margin: 0.5em 0;
+        }
+        #search button{
+            background-color: ghostwhite;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="quote">Loading Quotes</div>
+        <button onclick="fetchQuote()">New Quote</button>
+        <div id="search">
+            <input type="text" id="author" placeholder="Search by author">
+            <button onclick="searchQuotes()">Search</button>
+        </div>
+        <div id="results"></div>
+    </div>
+    <script>
+        async function fetchQuote() {
+            const response = await fetch('/api/quote');
+            const data = await response.json();
+            document.getElementById('quote').innerText = `"${data.text}" - ${data.author}`;
+        }
+
+        async function searchQuotes() {
+            const author = document.getElementById('author').value;
+            const response = await fetch(`/api/quotes?author=${author}`);
+            const data = await response.json();
+            const results = document.getElementById('results');
+            results.innerHTML = '';
+            if (data.length === 0) {
+                results.innerText = 'No quotes found';
+            } else {
+                data.forEach(quote => {
+                    const quoteItem = document.createElement('div');
+                    quoteItem.className = 'quote-item';
+                    quoteItem.innerText = `"${quote.text}" - ${quote.author}`;
+                    results.appendChild(quoteItem);
+                });
+            }
+        }
+
+        // Fetch initial quote when the page loads
+        fetchQuote();
+    </script>
+</body>
+</html>
